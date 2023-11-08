@@ -179,7 +179,7 @@ namespace SkilledCarryWeight.Configs
                 skillConfig.coeffConfig = BindConfig(
                     skillName,
                     "Coefficient",
-                    0.5f,
+                    0.25f,
                     "Value to multiply the skill level by to determine how much extra carry weight it grants.",
                     new AcceptableValueRange<float>(0, 10)
                 );

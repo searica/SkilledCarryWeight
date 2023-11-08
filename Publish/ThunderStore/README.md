@@ -32,7 +32,7 @@ Each skill gets it's own section with the following configuration options.
 **Coefficient** [Synced with Server]
 - Value to multiply the skill level by to determine how much extra carry weight it grants.
   - Acceptable values: (0, 10)
-  - Default value: 0.5
+  - Default value: 0.25
 
 **Power** [Synced with Server]
 - Power the skill level is raised to before multiplying by Coefficient to determine extra carry weight.
