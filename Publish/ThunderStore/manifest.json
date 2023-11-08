@@ -1,10 +1,10 @@
 ﻿{
   "name": "SkilledCarryWeight",
-  "description": "",
-  "version_number": "0.0.1",
-  "website_url": "",
+  "description": "Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Uses Jotunn to sync configuration if installed on server.",
+  "version_number": "1.0.0",
+  "website_url": "https://discord.gg/sFmGTBYN6n",
   "dependencies": [
-    "denikson-BepInExPack_Valheim-5.4.2105",
-    "ValheimModding-Jotunn-2.12.6"
+    "denikson-BepInExPack_Valheim-5.4.2202",
+    "ValheimModding-Jotunn-2.14.6"
   ]
 }

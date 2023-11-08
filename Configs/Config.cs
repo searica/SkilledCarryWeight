@@ -5,6 +5,7 @@ using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using SkilledCarryWeight.Extensions;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
@@ -89,7 +90,7 @@ namespace SkilledCarryWeight.Configs
             int sectionPriority = 0
         )
         {
-            string sectionName = SetSectionPriority(section, sectionPriority);
+            string sectionName = SetStringPriority(section, sectionPriority);
             string extendedDescription = GetExtendedDescription(description, synced);
             ConfigEntry<T> configEntry = configFile.Bind(
                 sectionName,
@@ -114,7 +115,7 @@ namespace SkilledCarryWeight.Configs
         /// <param name="sectionName">Section name</param>
         /// <param name="priority">Number of ZWS chars to prepend</param>
         /// <returns></returns>
-        private static string SetSectionPriority(string sectionName, int priority)
+        private static string SetStringPriority(string sectionName, int priority)
         {
             if (priority == 0) { return sectionName; }
             return new string(ZWS, priority) + sectionName;
@@ -126,6 +127,21 @@ namespace SkilledCarryWeight.Configs
         }
 
         #endregion BindConfig
+
+        internal static readonly Dictionary<Skills.SkillType, SkillConfig> SkillConfigsMap = new();
+
+        internal class SkillConfig
+        {
+            public ConfigEntry<bool> enabledConfig;
+            public ConfigEntry<float> coeffConfig;
+            public ConfigEntry<float> powConfig;
+
+            public bool IsEnabled => enabledConfig != null && enabledConfig.Value;
+
+            public float Coeff => coeffConfig.Value;
+
+            public float Pow => powConfig.Value;
+        }
 
         internal static void Init(ConfigFile config)
         {
@@ -143,9 +159,73 @@ namespace SkilledCarryWeight.Configs
                 "is useful for troubleshooting. High will log a lot of information, do not set " +
                 "it to this without good reason as it will slow down your game.",
                 synced: false,
-                sectionPriority: 0
+                sectionPriority: 1
             );
+
+            foreach (var skillType in Skills.s_allSkills)
+            {
+                if (skillType == Skills.SkillType.All) { continue; }
+
+                var skillName = skillType.ToString();
+                var skillConfig = new SkillConfig();
+
+                skillConfig.enabledConfig = BindConfig(
+                    skillName,
+                    SetStringPriority("Enabled", 1),
+                    GetDefaultEnabledValue(skillType),
+                    "Set to true/enabled to allow this skill to increase your max carry weight."
+                );
+
+                skillConfig.coeffConfig = BindConfig(
+                    skillName,
+                    "Coefficient",
+                    0.5f,
+                    "Value to multiply the skill level by to determine how much extra carry weight it grants.",
+                    new AcceptableValueRange<float>(0, 10)
+                );
+
+                skillConfig.powConfig = BindConfig(
+                    skillName,
+                    "Power",
+                    1f,
+                    "Power the skill level is raised to before multiplying by Coefficient to determine extra carry weight.",
+                    new AcceptableValueRange<float>(0, 10)
+                );
+
+                SkillConfigsMap[skillType] = skillConfig;
+            }
+
             Save();
+        }
+
+        private static bool GetDefaultEnabledValue(Skills.SkillType skillType)
+        {
+            switch (skillType)
+            {
+                case Skills.SkillType.Run:
+                    return true;
+
+                case Skills.SkillType.Jump:
+                    return true;
+
+                case Skills.SkillType.Swim:
+                    return true;
+
+                case Skills.SkillType.WoodCutting:
+                    return true;
+
+                case Skills.SkillType.Pickaxes:
+                    return true;
+
+                case Skills.SkillType.Ride:
+                    return true;
+
+                case Skills.SkillType.Sneak:
+                    return true;
+
+                default:
+                    return false;
+            }
         }
 
         /// <summary>
