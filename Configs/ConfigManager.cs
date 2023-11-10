@@ -13,7 +13,7 @@ using UnityEngine.Rendering;
 
 namespace SkilledCarryWeight.Configs
 {
-    internal class Config
+    internal class ConfigManager
     {
         private static readonly string ConfigFileName = SkilledCarryWeight.PluginGUID + ".cfg";
 
@@ -26,10 +26,6 @@ namespace SkilledCarryWeight.Configs
         private static ConfigFile configFile;
         private static BaseUnityPlugin ConfigurationManager;
         private const string ConfigManagerGUID = "com.bepis.bepinex.configurationmanager";
-
-        private static readonly AcceptableValueList<bool> AcceptableBoolValuesList = new(new bool[] { false, true });
-
-        private const string MainSection = "Global";
 
         #region Events
 
@@ -86,14 +82,12 @@ namespace SkilledCarryWeight.Configs
             T value,
             string description,
             AcceptableValueBase acceptVals = null,
-            bool synced = true,
-            int sectionPriority = 0
+            bool synced = true
         )
         {
-            string sectionName = SetStringPriority(section, sectionPriority);
             string extendedDescription = GetExtendedDescription(description, synced);
             ConfigEntry<T> configEntry = configFile.Bind(
-                sectionName,
+                section,
                 name,
                 value,
                 new ConfigDescription(
@@ -143,6 +137,8 @@ namespace SkilledCarryWeight.Configs
             public float Pow => powConfig.Value;
         }
 
+        private static readonly string MainSection = SetStringPriority("Global", 1);
+
         internal static void Init(ConfigFile config)
         {
             configFile = config;
@@ -158,8 +154,7 @@ namespace SkilledCarryWeight.Configs
                 "Low will log basic information about the mod. Medium will log information that " +
                 "is useful for troubleshooting. High will log a lot of information, do not set " +
                 "it to this without good reason as it will slow down your game.",
-                synced: false,
-                sectionPriority: 1
+                synced: false
             );
 
             foreach (var skillType in Skills.s_allSkills)

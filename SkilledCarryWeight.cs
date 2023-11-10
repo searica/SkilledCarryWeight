@@ -4,6 +4,7 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using System.Reflection;
+using SkilledCarryWeight.Configs;
 
 namespace SkilledCarryWeight
 {
@@ -20,28 +21,25 @@ namespace SkilledCarryWeight
         // https://valheim-modding.github.io/Jotunn/tutorials/localization.html
         //public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
 
-        private Harmony _harmony;
-
         public void Awake()
         {
             Log.Init(Logger);
 
-            Configs.Config.Init(Config);
-            Configs.Config.SetUpConfig();
+            ConfigManager.Init(Config);
+            ConfigManager.SetUpConfig();
 
-            _harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), harmonyInstanceId: PluginGUID);
+            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), harmonyInstanceId: PluginGUID);
 
             Game.isModded = true;
 
-            Configs.Config.SetupWatcher();
-            Configs.Config.CheckForConfigManager();
-            Configs.Config.OnConfigWindowClosed += () => { Configs.Config.Save(); };
+            ConfigManager.SetupWatcher();
+            ConfigManager.CheckForConfigManager();
+            ConfigManager.OnConfigWindowClosed += () => { Configs.ConfigManager.Save(); };
         }
 
         public void OnDestroy()
         {
-            Configs.Config.Save();
-            _harmony?.UnpatchSelf();
+            ConfigManager.Save();
         }
     }
 
