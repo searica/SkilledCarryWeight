@@ -172,7 +172,8 @@ namespace SkilledCarryWeight.Configs
                 CartSection,
                 "CartPower",
                 1f,
-                "Cart mass is calculated as \"new mass = (mass * 300 / mass carry weight) ^ CartPower\"."
+                "Cart mass is calculated as \"new mass = mass * (300 / mass carry weight) ^ CartPower\".",
+                new AcceptableValueRange<float>(0, 3)
             );
 
             foreach (var skillType in Skills.s_allSkills)
