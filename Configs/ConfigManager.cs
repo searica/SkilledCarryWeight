@@ -137,7 +137,11 @@ namespace SkilledCarryWeight.Configs
             public float Pow => powConfig.Value;
         }
 
-        private static readonly string MainSection = SetStringPriority("Global", 1);
+        internal static ConfigEntry<bool> EnableCartPatch;
+        internal static ConfigEntry<float> CartPower;
+
+        private static readonly string MainSection = SetStringPriority("Global", 2);
+        private static readonly string CartSection = SetStringPriority("Cart", 1);
 
         internal static void Init(ConfigFile config)
         {
@@ -155,6 +159,20 @@ namespace SkilledCarryWeight.Configs
                 "is useful for troubleshooting. High will log a lot of information, do not set " +
                 "it to this without good reason as it will slow down your game.",
                 synced: false
+            );
+
+            EnableCartPatch = BindConfig(
+                CartSection,
+                "CarryWeightAffectsCart",
+                true,
+                "Set to true/enabled to allow your max carry weight affect how easy carts are to pull."
+            );
+
+            CartPower = BindConfig(
+                CartSection,
+                "CartPower",
+                1f,
+                "Cart mass is calculated as \"new mass = (mass * 300 / mass carry weight) ^ CartPower\"."
             );
 
             foreach (var skillType in Skills.s_allSkills)
@@ -287,7 +305,7 @@ namespace SkilledCarryWeight.Configs
 
         #endregion FileWatcher
 
-        #region ConfigManager
+        #region ConfigManagerWindow
 
         /// <summary>
         ///     Checks for in-game configuration manager and
@@ -331,6 +349,6 @@ namespace SkilledCarryWeight.Configs
             }
         }
 
-        #endregion ConfigManager
+        #endregion ConfigManagerWindow
     }
 }
