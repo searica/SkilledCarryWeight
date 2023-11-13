@@ -57,23 +57,6 @@ namespace SkilledCarryWeight.Configs
 
         #endregion Events
 
-        #region LoggerLevel
-
-        internal enum LoggerLevel
-        {
-            Low = 0,
-            Medium = 1,
-            High = 2,
-        }
-
-        internal static ConfigEntry<LoggerLevel> Verbosity { get; private set; }
-        internal static LoggerLevel VerbosityLevel => Verbosity.Value;
-        internal static bool IsVerbosityLow => Verbosity.Value >= LoggerLevel.Low;
-        internal static bool IsVerbosityMedium => Verbosity.Value >= LoggerLevel.Medium;
-        internal static bool IsVerbosityHigh => Verbosity.Value >= LoggerLevel.High;
-
-        #endregion LoggerLevel
-
         #region BindConfig
 
         internal static ConfigEntry<T> BindConfig<T>(
@@ -109,7 +92,7 @@ namespace SkilledCarryWeight.Configs
         /// <param name="sectionName">Section name</param>
         /// <param name="priority">Number of ZWS chars to prepend</param>
         /// <returns></returns>
-        private static string SetStringPriority(string sectionName, int priority)
+        internal static string SetStringPriority(string sectionName, int priority)
         {
             if (priority == 0) { return sectionName; }
             return new string(ZWS, priority) + sectionName;
@@ -122,124 +105,10 @@ namespace SkilledCarryWeight.Configs
 
         #endregion BindConfig
 
-        internal static readonly Dictionary<Skills.SkillType, SkillConfig> SkillConfigsMap = new();
-
-        internal class SkillConfig
-        {
-            public ConfigEntry<bool> enabledConfig;
-            public ConfigEntry<float> coeffConfig;
-            public ConfigEntry<float> powConfig;
-
-            public bool IsEnabled => enabledConfig != null && enabledConfig.Value;
-
-            public float Coeff => coeffConfig.Value;
-
-            public float Pow => powConfig.Value;
-        }
-
-        internal static ConfigEntry<bool> EnableCartPatch;
-        internal static ConfigEntry<float> CartPower;
-
-        private static readonly string MainSection = SetStringPriority("Global", 2);
-        private static readonly string CartSection = SetStringPriority("Cart", 1);
-
         internal static void Init(ConfigFile config)
         {
             configFile = config;
             configFile.SaveOnConfigSet = false;
-        }
-
-        internal static void SetUpConfig()
-        {
-            Verbosity = BindConfig(
-                MainSection,
-                "Verbosity",
-                LoggerLevel.Low,
-                "Low will log basic information about the mod. Medium will log information that " +
-                "is useful for troubleshooting. High will log a lot of information, do not set " +
-                "it to this without good reason as it will slow down your game.",
-                synced: false
-            );
-
-            EnableCartPatch = BindConfig(
-                CartSection,
-                "CarryWeightAffectsCart",
-                true,
-                "Set to true/enabled to allow your max carry weight affect how easy carts are to pull."
-            );
-
-            CartPower = BindConfig(
-                CartSection,
-                "CartPower",
-                1f,
-                "Cart mass is calculated as \"new mass = mass * (300 / mass carry weight) ^ CartPower\".",
-                new AcceptableValueRange<float>(0, 3)
-            );
-
-            foreach (var skillType in Skills.s_allSkills)
-            {
-                if (skillType == Skills.SkillType.All) { continue; }
-
-                var skillName = skillType.ToString();
-                var skillConfig = new SkillConfig();
-
-                skillConfig.enabledConfig = BindConfig(
-                    skillName,
-                    SetStringPriority("Enabled", 1),
-                    GetDefaultEnabledValue(skillType),
-                    "Set to true/enabled to allow this skill to increase your max carry weight."
-                );
-
-                skillConfig.coeffConfig = BindConfig(
-                    skillName,
-                    "Coefficient",
-                    0.25f,
-                    "Value to multiply the skill level by to determine how much extra carry weight it grants.",
-                    new AcceptableValueRange<float>(0, 10)
-                );
-
-                skillConfig.powConfig = BindConfig(
-                    skillName,
-                    "Power",
-                    1f,
-                    "Power the skill level is raised to before multiplying by Coefficient to determine extra carry weight.",
-                    new AcceptableValueRange<float>(0, 10)
-                );
-
-                SkillConfigsMap[skillType] = skillConfig;
-            }
-
-            Save();
-        }
-
-        private static bool GetDefaultEnabledValue(Skills.SkillType skillType)
-        {
-            switch (skillType)
-            {
-                case Skills.SkillType.Run:
-                    return true;
-
-                case Skills.SkillType.Jump:
-                    return true;
-
-                case Skills.SkillType.Swim:
-                    return true;
-
-                case Skills.SkillType.WoodCutting:
-                    return true;
-
-                case Skills.SkillType.Pickaxes:
-                    return true;
-
-                case Skills.SkillType.Ride:
-                    return true;
-
-                case Skills.SkillType.Sneak:
-                    return true;
-
-                default:
-                    return false;
-            }
         }
 
         /// <summary>

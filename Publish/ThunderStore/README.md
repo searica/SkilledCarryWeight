@@ -1,5 +1,5 @@
 # SkilledCarryWeight
-Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Uses Jotunn to sync configuration if installed on server.
+Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Can also set increasing your max carry weight to cause carts to be easier to pull. Uses Jotunn to sync configuration if installed on server.
 
 ## Details
 Vanilla skills are automatically detected so if new skills get added in a future update this mod will let you configure how they affect your max carry weight. 
@@ -9,19 +9,45 @@ Max carry weight is increased based on skill level for each skill enabled in the
 Increase = Coefficient * ((Skill Level) ^ Power)
 ```
 
+Effective cart mass if calculated using the following equation if `CarryWeightAffectsCart` is enabled.
+```
+ModifiedMass = Max(Mass * (1 - MaxMassReduction), Mass * (MinCarryWeight/MaxCarryWeight) ^ Power)
+```
+
 **Server-Side Info**: This mod does work as a client-side only mod and only needs to be installed on the server if you wish to enforce configuration settings.
 
 ## Configuration
 Changes made to the configuration settings will be reflected in-game immediately (no restart required) and they will also sync to clients if the mod is on the server. The mod also has a built in file watcher so you can edit settings via an in-game configuration manager (changes applied upon closing the in-game configuration manager) or by changing values in the file via a text editor or mod manager.
 
-### Global Section:
+### Global:
 
 **Verbosity**
 - Low will log basic information about the mod. Medium will log information that is useful for troubleshooting. High will log a lot of information, do not set it to this without good reason as it will slow down your game.
   - Acceptable values: Low, Medium, High
   - Default value: Low.
 
-### Individual Skills Section
+## Cart
+**CarryWeightAffectsCart** [Synced with Server]
+- Set to true/enabled to allow your max carry weight affect how easy carts are to pull by reducing the mass of carts you pull. `Equation: ModifiedMass = Max(Mass * (1 - MaxMassReduction), Mass * (MinCarryWeight/MaxCarryWeight) ^ Power)`
+    - Acceptable values: False, True
+    - Default value: true
+
+**Power** [Synced with Server]
+- Affects how much your maximum carry weight making pulling carts easier. Higher powers make your maximum carry weight reduce the mass of carts more.
+    - Acceptable values: (0, 3)
+    - Default value: 1
+
+**MaxMassReduction** [Synced with Server]
+- Maximum reduction in cart mass due to increased max carry weight. Limits ModifiedMass always be equal to or greater than `Mass * (1 - MaxMassReduction)`
+    - Acceptable values: (0, 1)
+    - Default value: 0.7
+
+**MinCarryWeight** [Synced with Server]
+- Minimum value your maximum carry weight must be before it starts making carts easier to pull.
+    - Acceptable values: (300, 1000)
+    - Default value: 300
+
+### Individual Skills
 Each skill gets it's own section with the following configuration options.
 
 **Enabled** [Synced with Server]

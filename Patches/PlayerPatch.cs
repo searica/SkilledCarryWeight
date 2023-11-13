@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using SkilledCarryWeight.Configs;
 using UnityEngine;
 
 namespace SkilledCarryWeight.Patches
@@ -14,7 +13,7 @@ namespace SkilledCarryWeight.Patches
             var skills = __instance.GetSkills();
             foreach (var skill in skills.m_skills)
             {
-                if (ConfigManager.SkillConfigsMap.TryGetValue(skill.m_skill, out ConfigManager.SkillConfig skillConfig) && skillConfig.IsEnabled)
+                if (SkilledCarryWeight.SkillConfigsMap.TryGetValue(skill.m_skill, out SkilledCarryWeight.SkillConfig skillConfig) && skillConfig.IsEnabled)
                 {
                     __result += skillConfig.Coeff * Mathf.Pow(skills.GetSkillLevel(skill.m_skill), skillConfig.Pow);
                 }

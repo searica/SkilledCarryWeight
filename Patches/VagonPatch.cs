@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using UnityEngine;
-using SkilledCarryWeight.Configs;
 
 namespace SkilledCarryWeight.Patches
 {
@@ -11,7 +10,7 @@ namespace SkilledCarryWeight.Patches
         [HarmonyPatch(nameof(Vagon.SetMass))]
         private static void SetMassPrefix(Vagon __instance, ref float mass)
         {
-            if (!ConfigManager.EnableCartPatch.Value) { return; }
+            if (!SkilledCarryWeight.EnableCartPatch.Value) { return; }
 
             if (__instance?.m_nview == null || !__instance.m_nview.IsOwner()) { return; }
 
@@ -19,7 +18,12 @@ namespace SkilledCarryWeight.Patches
             {
                 var player = Player.m_localPlayer;
 
-                mass *= Mathf.Pow(player.m_maxCarryWeight / player.GetMaxCarryWeight(), ConfigManager.CartPower.Value);
+                var tempMass = mass * Mathf.Pow(
+                    SkilledCarryWeight.MinCarryWeight.Value / player.GetMaxCarryWeight(),
+                    SkilledCarryWeight.CartPower.Value
+                );
+
+                mass *= Mathf.Max(tempMass, mass * (1 - SkilledCarryWeight.MaxMassReduction.Value));
             }
         }
     }
