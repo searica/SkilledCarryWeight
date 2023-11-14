@@ -1,6 +1,6 @@
 ﻿{
   "name": "SkilledCarryWeight",
-  "description": "Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Can also set increasing your max carry weight to cause carts to be easier to pull. Uses Jotunn to sync configuration if installed on server.",
+  "description": "Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Can also set increasing your max carry weight to cause carts to be easier to pull.",
   "version_number": "1.1.0",
   "website_url": "https://discord.gg/sFmGTBYN6n",
   "dependencies": [
