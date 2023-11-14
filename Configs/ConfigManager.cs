@@ -15,13 +15,9 @@ namespace SkilledCarryWeight.Configs
 {
     internal class ConfigManager
     {
-        private static readonly string ConfigFileName = SkilledCarryWeight.PluginGUID + ".cfg";
+        private static string ConfigFileName;
 
-        private static readonly string ConfigFileFullPath = string.Concat(
-            Paths.ConfigPath,
-            Path.DirectorySeparatorChar,
-            ConfigFileName
-        );
+        private static string ConfigFileFullPath;
 
         private static ConfigFile configFile;
         private static BaseUnityPlugin ConfigurationManager;
@@ -105,10 +101,12 @@ namespace SkilledCarryWeight.Configs
 
         #endregion BindConfig
 
-        internal static void Init(ConfigFile config)
+        internal static void Init(string GUID, ConfigFile config, bool saveOnConfigSet = false)
         {
             configFile = config;
-            configFile.SaveOnConfigSet = false;
+            configFile.SaveOnConfigSet = saveOnConfigSet;
+            ConfigFileName = GUID + ".cfg";
+            ConfigFileFullPath = Path.Combine(Paths.ConfigPath, ConfigFileName);
         }
 
         /// <summary>
@@ -116,7 +114,7 @@ namespace SkilledCarryWeight.Configs
         ///     the value prior to calling this method.
         /// </summary>
         /// <returns></returns>
-        private static bool DisableSaveOnConfigSet()
+        internal static bool DisableSaveOnConfigSet()
         {
             var val = configFile.SaveOnConfigSet;
             configFile.SaveOnConfigSet = false;

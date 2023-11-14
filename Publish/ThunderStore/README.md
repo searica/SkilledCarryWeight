@@ -1,5 +1,7 @@
 # SkilledCarryWeight
-Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Can also set increasing your max carry weight to cause carts to be easier to pull. Uses Jotunn to sync configuration if installed on server.
+Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Can also set increasing your max carry weight to make carts to be easier to pull. Uses Jotunn to sync configuration if installed on server.
+
+**Server-Side Info**: This mod does work as a client-side only mod and only needs to be installed on the server if you wish to enforce configuration settings.
 
 ## Details
 Vanilla skills are automatically detected so if new skills get added in a future update this mod will let you configure how they affect your max carry weight. 
@@ -14,8 +16,6 @@ Effective cart mass if calculated using the following equation if `CarryWeightAf
 ModifiedMass = Max(Mass * (1 - MaxMassReduction), Mass * (MinCarryWeight/MaxCarryWeight) ^ Power)
 ```
 
-**Server-Side Info**: This mod does work as a client-side only mod and only needs to be installed on the server if you wish to enforce configuration settings.
-
 ## Configuration
 Changes made to the configuration settings will be reflected in-game immediately (no restart required) and they will also sync to clients if the mod is on the server. The mod also has a built in file watcher so you can edit settings via an in-game configuration manager (changes applied upon closing the in-game configuration manager) or by changing values in the file via a text editor or mod manager.
 
@@ -28,7 +28,7 @@ Changes made to the configuration settings will be reflected in-game immediately
 
 ## Cart
 **CarryWeightAffectsCart** [Synced with Server]
-- Set to true/enabled to allow your max carry weight affect how easy carts are to pull by reducing the mass of carts you pull. `Equation: ModifiedMass = Max(Mass * (1 - MaxMassReduction), Mass * (MinCarryWeight/MaxCarryWeight) ^ Power)`
+- Set to true/enabled to allow your max carry weight affect how easy carts are to pull by reducing the mass of carts you pull. 
     - Acceptable values: False, True
     - Default value: true
 
@@ -38,7 +38,7 @@ Changes made to the configuration settings will be reflected in-game immediately
     - Default value: 1
 
 **MaxMassReduction** [Synced with Server]
-- Maximum reduction in cart mass due to increased max carry weight. Limits ModifiedMass always be equal to or greater than `Mass * (1 - MaxMassReduction)`
+- Maximum reduction in cart mass due to increased max carry weight. Limits effective cart mass to always be equal to or greater than `Mass * (1 - MaxMassReduction)`.
     - Acceptable values: (0, 1)
     - Default value: 0.7
 
@@ -69,16 +69,19 @@ Each skill gets it's own section with the following configuration options.
 None so far, tell me if you find any.
 
 ## Donations/Tips
- My mods will always be free to use but if you feel like saying thanks you can tip/donate.
+My mods will always be free to use but if you feel like saying thanks you can tip/donate.
 
-  [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/searica)
+| My Ko-fi: | [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/searica) |
+|-----------|---------------|
 
 ## Source Code
-Github: https://github.com/searica/SkilledCarryWeight
+Source code is available on Github.
+
+| Github Repository: | <img height="18" src="https://github.githubassets.com/favicons/favicon-dark.svg"></img><a href="https://github.com/searica/SkilledCarryWeight"> SkilledCarryWeight</a> |
+|-----------|---------------|
 
 ### Contributions
 If you would like to provide suggestions, make feature requests, or reports bugs and compatibility issues you can either open an issue on the Github repository or tag me (@searica) with a message on my discord [Searica's Mods](https://discord.gg/sFmGTBYN6n).
-<!--the [Jotunn discord](https://discord.gg/DdUt6g7gyA), or the [Odin Plus discord](https://discord.gg/mbkPcvu9ax)-->
 
 I'm a grad student and have a lot of personal responsibilities on top of that so I can't promise I will respond quickly, but I do intend to maintain and improve the mod in my free time.
 
@@ -88,11 +91,12 @@ If you like this mod you might like some of my other ones.
 #### Building Mods
 - [More Vanilla Build Prefabs](https://valheim.thunderstore.io/package/Searica/More_Vanilla_Build_Prefabs/)
 - [Extra Snap Points Made Easy](https://valheim.thunderstore.io/package/Searica/Extra_Snap_Points_Made_Easy/)
+- [TerrainTools](https://valheim.thunderstore.io/package/Searica/TerrainTools/)
 - [BuildRestrictionTweaksSync](https://valheim.thunderstore.io/package/Searica/BuildRestrictionTweaksSync/)
 
 #### Gameplay Mods
-- [FortifySkillsRedux](https://valheim.thunderstore.io/package/Searica/FortifySkillsRedux/)
-- [DodgeShortcut](https://valheim.thunderstore.io/package/Searica/DodgeShortcut/)
-- [ProjectileTweaks](https://github.com/searica/ProjectileTweaks)
-- [SafetyStatus](https://valheim.thunderstore.io/package/Searica/SafetyStatus/)
 - [CameraTweaks](https://valheim.thunderstore.io/package/Searica/CameraTweaks/)
+- [DodgeShortcut](https://valheim.thunderstore.io/package/Searica/DodgeShortcut/)
+- [FortifySkillsRedux](https://valheim.thunderstore.io/package/Searica/FortifySkillsRedux/)
+- [ProjectileTweaks](https://github.com/searica/ProjectileTweaks/)
+- [SafetyStatus](https://valheim.thunderstore.io/package/Searica/SafetyStatus/)

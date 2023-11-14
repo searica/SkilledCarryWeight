@@ -9,6 +9,7 @@ using BepInEx.Configuration;
 using UnityEngine;
 using System.Collections.Generic;
 using SkilledCarryWeight.Extensions;
+using System;
 
 namespace SkilledCarryWeight
 {
@@ -43,12 +44,15 @@ namespace SkilledCarryWeight
 
         private static readonly string MainSection = ConfigManager.SetStringPriority("Global", 2);
         private static readonly string CartSection = ConfigManager.SetStringPriority("Cart", 1);
+        private static bool SettingsUpdated = false;
 
         public void Awake()
         {
             Log.Init(Logger);
 
-            ConfigManager.Init(Config);
+            ConfigManager.Init(PluginGUID, Config, false);
+            Initialize();
+            ConfigManager.Save();
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), harmonyInstanceId: PluginGUID);
 
@@ -56,7 +60,14 @@ namespace SkilledCarryWeight
 
             ConfigManager.SetupWatcher();
             ConfigManager.CheckForConfigManager();
-            ConfigManager.OnConfigWindowClosed += () => { ConfigManager.Save(); };
+            ConfigManager.OnConfigWindowClosed += delegate
+            {
+                if (SettingsUpdated)
+                {
+                    ConfigManager.Save();
+                    SettingsUpdated = false;
+                }
+            };
         }
 
         public void OnDestroy()
@@ -64,7 +75,15 @@ namespace SkilledCarryWeight
             ConfigManager.Save();
         }
 
-        internal static void SetUpConfigEntries()
+        private static void OnSettingChanged(object sender, EventArgs e)
+        {
+            if (!SettingsUpdated) { SettingsUpdated = true; }
+        }
+
+        /// <summary>
+        ///     Set up configuration entries
+        /// </summary>
+        internal static void Initialize()
         {
             Log.Verbosity = ConfigManager.BindConfig(
                 MainSection,
@@ -75,13 +94,15 @@ namespace SkilledCarryWeight
                 "it to this without good reason as it will slow down your game.",
                 synced: false
             );
+            Log.Verbosity.SettingChanged += OnSettingChanged;
 
             EnableCartPatch = ConfigManager.BindConfig(
                 CartSection,
                 "CarryWeightAffectsCart",
                 true,
-                "Set to true/enabled to allow your max carry weight affect how easy carts are to pull by reducing the mass of carts you pull. [Equation: ModifiedMass = Max(Mass * (1 - MaxMassReduction), Mass * (MinCarryWeight/MaxCarryWeight) ^ Power)]"
+                "Set to true/enabled to allow your max carry weight affect how easy carts are to pull by reducing the mass of carts you pull."
             );
+            EnableCartPatch.SettingChanged += OnSettingChanged;
 
             CartPower = ConfigManager.BindConfig(
                 CartSection,
@@ -91,14 +112,17 @@ namespace SkilledCarryWeight
                 "Higher powers make your maximum carry weight reduce the mass of carts more.",
                 new AcceptableValueRange<float>(0, 3)
             );
+            CartPower.SettingChanged += OnSettingChanged;
 
             MaxMassReduction = ConfigManager.BindConfig(
                 CartSection,
                 "MaxMassReduction",
                 0.7f,
-                "Maximum reduction in cart mass due to increased max carry weight. Limits ModifiedMass always be equal to or greater than Mass * (1 - MaxMassReduction)",
+                "Maximum reduction in cart mass due to increased max carry weight. Limits effective " +
+                "cart mass to always be equal to or greater than Mass * (1 - MaxMassReduction)",
                 new AcceptableValueRange<float>(0, 1)
             );
+            MaxMassReduction.SettingChanged += OnSettingChanged;
 
             MinCarryWeight = ConfigManager.BindConfig(
                 CartSection,
@@ -107,6 +131,7 @@ namespace SkilledCarryWeight
                 "Minimum value your maximum carry weight must be before it starts making carts easier to pull.",
                 new AcceptableValueRange<float>(300, 1000)
             );
+            MinCarryWeight.SettingChanged += OnSettingChanged;
 
             foreach (var skillType in Skills.s_allSkills)
             {
@@ -121,6 +146,7 @@ namespace SkilledCarryWeight
                     GetDefaultEnabledValue(skillType),
                     "Set to true/enabled to allow this skill to increase your max carry weight."
                 );
+                skillConfig.enabledConfig.SettingChanged += OnSettingChanged;
 
                 skillConfig.coeffConfig = ConfigManager.BindConfig(
                     skillName,
@@ -129,6 +155,7 @@ namespace SkilledCarryWeight
                     "Value to multiply the skill level by to determine how much extra carry weight it grants.",
                     new AcceptableValueRange<float>(0, 10)
                 );
+                skillConfig.coeffConfig.SettingChanged += OnSettingChanged;
 
                 skillConfig.powConfig = ConfigManager.BindConfig(
                     skillName,
@@ -137,11 +164,10 @@ namespace SkilledCarryWeight
                     "Power the skill level is raised to before multiplying by Coefficient to determine extra carry weight.",
                     new AcceptableValueRange<float>(0, 10)
                 );
+                skillConfig.powConfig.SettingChanged += OnSettingChanged;
 
                 SkillConfigsMap[skillType] = skillConfig;
             }
-
-            ConfigManager.Save();
         }
 
         private static bool GetDefaultEnabledValue(Skills.SkillType skillType)
@@ -212,7 +238,7 @@ namespace SkilledCarryWeight
 
         internal static void LogInfo(object data, LogLevel level = LogLevel.Low)
         {
-            if (VerbosityLevel >= level)
+            if (Verbosity is null || VerbosityLevel >= level)
             {
                 _logSource.LogInfo(data);
             }
@@ -221,6 +247,8 @@ namespace SkilledCarryWeight
         internal static void LogMessage(object data) => _logSource.LogMessage(data);
 
         internal static void LogWarning(object data) => _logSource.LogWarning(data);
+
+        #region Logging Unity Objects
 
         internal static void LogGameObject(GameObject prefab, bool includeChildren = false)
         {
@@ -259,5 +287,7 @@ namespace SkilledCarryWeight
                 LogInfo($" - {field.Name} = {field.GetValue(compo)}");
             }
         }
+
+        #endregion Logging Unity Objects
     }
 }

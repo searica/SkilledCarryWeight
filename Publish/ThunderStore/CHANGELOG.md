@@ -9,6 +9,9 @@
 			<td align="left">
 				<ul>
 					<li>Added options to reduce cart mass based on max carry weight.</li>
+					<li>Compiled against newest game version.</li>
+					<li>Minor performance optimizations.</li>
+					<li>Updated icon.</li>
 				</ul>
 			</td>
 		</tr>
