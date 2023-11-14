@@ -5,6 +5,14 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">1.1.1</td>
+			<td align="left">
+				<ul>
+					<li>Fix README format.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">1.1.0</td>
 			<td align="left">
 				<ul>

@@ -26,7 +26,7 @@ Changes made to the configuration settings will be reflected in-game immediately
   - Acceptable values: Low, Medium, High
   - Default value: Low.
 
-## Cart
+### Cart
 **CarryWeightAffectsCart** [Synced with Server]
 - Set to true/enabled to allow your max carry weight affect how easy carts are to pull by reducing the mass of carts you pull. 
     - Acceptable values: False, True
