@@ -16,6 +16,11 @@ namespace SkilledCarryWeight.Patches
                 if (SkilledCarryWeight.SkillConfigsMap.TryGetValue(skill.m_skill, out SkilledCarryWeight.SkillConfig skillConfig) && skillConfig.IsEnabled)
                 {
                     __result += skillConfig.Coeff * Mathf.Pow(skills.GetSkillLevel(skill.m_skill), skillConfig.Pow);
+                    if (float.IsInfinity(__result))
+                    {
+                        __result = float.MaxValue;
+                        return;
+                    }
                 }
             }
         }
