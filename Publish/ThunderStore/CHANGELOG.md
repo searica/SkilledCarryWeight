@@ -5,6 +5,14 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">1.1.2</td>
+			<td align="left">
+				<ul>
+					<li>Bugfix for cart mass not being decreased correctly.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">1.1.1</td>
 			<td align="left">
 				<ul>

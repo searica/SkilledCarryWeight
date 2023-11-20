@@ -23,7 +23,7 @@ namespace SkilledCarryWeight.Patches
                     SkilledCarryWeight.CartPower.Value
                 );
 
-                mass *= Mathf.Max(tempMass, mass * (1 - SkilledCarryWeight.MaxMassReduction.Value));
+                mass = Mathf.Max(tempMass, mass * (1 - SkilledCarryWeight.MaxMassReduction.Value));
             }
         }
     }
