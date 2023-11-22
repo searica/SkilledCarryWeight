@@ -41,9 +41,14 @@ namespace SkilledCarryWeight
         internal static ConfigEntry<float> CartPower;
         internal static ConfigEntry<float> MaxMassReduction;
         internal static ConfigEntry<float> MinCarryWeight;
+        internal static ConfigEntry<KeyCode> QuickCartKey;
+        internal static ConfigEntry<float> AttachDistance;
+        internal static ConfigEntry<bool> AttachOutOfPlace;
 
-        private static readonly string MainSection = ConfigManager.SetStringPriority("Global", 2);
-        private static readonly string CartSection = ConfigManager.SetStringPriority("Cart", 1);
+
+        private static readonly string MainSection = ConfigManager.SetStringPriority("Global", 3);
+        private static readonly string CartSection = ConfigManager.SetStringPriority("Cart Mass", 2);
+        private static readonly string QuickCartSection = ConfigManager.SetStringPriority("Quick Cart", 1);
         private static bool SettingsUpdated = false;
 
         public void Awake()
@@ -133,6 +138,30 @@ namespace SkilledCarryWeight
             );
             MinCarryWeight.SettingChanged += OnSettingChanged;
 
+
+            QuickCartKey = ConfigManager.BindConfig(
+                QuickCartSection,
+                "QuickCartKey",
+                KeyCode.G,
+                "The hotkey used to attach to or detach from a nearby cart.",
+                synced: false
+            );
+
+            AttachDistance = ConfigManager.BindConfig(
+                QuickCartSection,
+                "AttachDistance",
+                5f,
+                "Maximum distance to attach a cart from.",
+                new AcceptableValueRange<float>(2f, 8f)
+            );
+
+            AttachOutOfPlace = ConfigManager.BindConfig(
+                QuickCartSection,
+                "AttachOutOfPlace",
+                true,
+                "Allow attaching the cart even when out of place."
+            );
+            
             foreach (var skillType in Skills.s_allSkills)
             {
                 if (skillType == Skills.SkillType.All) { continue; }
@@ -199,6 +228,50 @@ namespace SkilledCarryWeight
                     return false;
             }
         }
+
+        /// <summary>
+        ///     Check for quick cart attach/detatch
+        /// </summary>
+        private void Update()
+        {
+            if (Input.GetKeyDown(QuickCartKey.Value) && TryGetClosestVagon(out Vagon closestVagon) && closestVagon)
+            {
+                closestVagon.Interact(Player.m_localPlayer, false, false);   
+            }
+        }
+
+        private static bool TryGetClosestVagon(out Vagon closestVagon)
+        {
+            closestVagon = null;
+            float minDistance = float.PositiveInfinity;
+            Vector3 position = Player.m_localPlayer.transform.position + Vector3.up;
+            foreach (Collider collider in Physics.OverlapSphere(position, AttachDistance.Value))
+            {
+                if (TryGetVagon(collider, out Vagon vagon) && collider.attachedRigidbody && 
+                    (vagon.IsAttached(Player.m_localPlayer) || !vagon.InUse()))
+                {
+                    float distance = Vector3.Distance(collider.ClosestPoint(position), position);
+                    if (distance < minDistance)
+                    {
+                        Log.LogInfo("Got nearby cart", LogLevel.Medium);
+                        minDistance = distance;
+                        closestVagon = collider.transform.parent.gameObject.GetComponent<Vagon>();
+                    }
+                }
+            }
+            return minDistance < AttachDistance.Value;
+        }
+
+        private static bool TryGetVagon(Collider collider, out Vagon vagon)
+        {
+            vagon = collider.gameObject.GetComponent<Vagon>();
+            if (!vagon && collider.transform.parent)
+            {
+                vagon = collider.transform.parent.gameObject.GetComponent<Vagon>();
+            }
+            return vagon;
+        }
+
     }
 
     /// <summary>
