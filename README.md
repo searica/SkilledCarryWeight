@@ -1,5 +1,5 @@
 # SkilledCarryWeight
-Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Can also set increasing your max carry weight to make carts to be easier to pull. Uses Jotunn to sync configuration if installed on server.
+Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Also adds a quick attach/detach feature for carts and can configure increasing your max carry weight to make carts to be easier to pull. Uses Jotunn to sync configuration if installed on server.
 
 **Server-Side Info**: This mod does work as a client-side only mod and only needs to be installed on the server if you wish to enforce configuration settings.
 
@@ -227,6 +227,7 @@ If you like this mod you might like some of my other ones.
 - [Extra Snap Points Made Easy](https://valheim.thunderstore.io/package/Searica/Extra_Snap_Points_Made_Easy/)
 - [AdvancedTerrainModifiers](https://valheim.thunderstore.io/package/Searica/AdvancedTerrainModifiers/)
 - [BuildRestrictionTweaksSync](https://valheim.thunderstore.io/package/Searica/BuildRestrictionTweaksSync/)
+- [ToolTweaks](https://valheim.thunderstore.io/package/Searica/ToolTweaks/)
 
 #### Gameplay Mods
 - [CameraTweaks](https://valheim.thunderstore.io/package/Searica/CameraTweaks/)
