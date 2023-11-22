@@ -13,7 +13,7 @@ using UnityEngine.Rendering;
 
 namespace SkilledCarryWeight.Configs
 {
-    internal class ConfigManager
+    internal static class ConfigManager
     {
         private static string ConfigFileName;
 

@@ -15,7 +15,7 @@ namespace SkilledCarryWeight
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid, Jotunn.Main.Version)]
-    internal class SkilledCarryWeight : BaseUnityPlugin
+    internal sealed class SkilledCarryWeight : BaseUnityPlugin
     {
         internal const string Author = "Searica";
         public const string PluginName = "SkilledCarryWeight";
@@ -41,7 +41,7 @@ namespace SkilledCarryWeight
         internal static ConfigEntry<KeyCode> QuickCartKey;
         internal static ConfigEntry<float> AttachDistance;
         internal static ConfigEntry<bool> AttachOutOfPlace;
-            
+
 
         private static readonly string MainSection = ConfigManager.SetStringPriority("Global", 3);
         private static readonly string CartSection = ConfigManager.SetStringPriority("Cart Mass", 2);
@@ -158,7 +158,7 @@ namespace SkilledCarryWeight
                 true,
                 "Allow attaching the cart even when out of place."
             );
-            
+
             foreach (var skillType in Skills.s_allSkills)
             {
                 if (skillType == Skills.SkillType.All) { continue; }
@@ -233,7 +233,7 @@ namespace SkilledCarryWeight
         {
             if (Input.GetKeyDown(QuickCartKey.Value) && TryGetClosestVagon(out Vagon closestVagon) && closestVagon)
             {
-                closestVagon.Interact(Player.m_localPlayer, false, false);   
+                closestVagon.Interact(Player.m_localPlayer, false, false);
             }
         }
 
@@ -244,7 +244,7 @@ namespace SkilledCarryWeight
             Vector3 position = Player.m_localPlayer.transform.position + Vector3.up;
             foreach (Collider collider in Physics.OverlapSphere(position, AttachDistance.Value))
             {
-                if (TryGetVagon(collider, out Vagon vagon) && collider.attachedRigidbody && 
+                if (TryGetVagon(collider, out Vagon vagon) && collider.attachedRigidbody &&
                     (vagon.IsAttached(Player.m_localPlayer) || !vagon.InUse()))
                 {
                     float distance = Vector3.Distance(collider.ClosestPoint(position), position);

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SkilledCarryWeight.Patches
 {
     [HarmonyPatch(typeof(Vagon))]
-    internal class VagonPatch
+    internal static class VagonPatch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(Vagon.SetMass))]

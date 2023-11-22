@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SkilledCarryWeight.Patches
 {
     [HarmonyPatch(typeof(Player))]
-    internal class PlayerPatch
+    internal static class PlayerPatch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(Player.GetMaxCarryWeight))]
