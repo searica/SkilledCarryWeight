@@ -20,7 +20,7 @@ namespace SkilledCarryWeight
         internal const string Author = "Searica";
         public const string PluginName = "SkilledCarryWeight";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "1.1.2";
+        public const string PluginVersion = "1.2.0";
 
         internal static readonly Dictionary<Skills.SkillType, SkillConfig> SkillConfigsMap = new();
 
@@ -41,7 +41,7 @@ namespace SkilledCarryWeight
         internal static ConfigEntry<KeyCode> QuickCartKey;
         internal static ConfigEntry<float> AttachDistance;
         internal static ConfigEntry<bool> AttachOutOfPlace;
-
+            
 
         private static readonly string MainSection = ConfigManager.SetStringPriority("Global", 3);
         private static readonly string CartSection = ConfigManager.SetStringPriority("Cart Mass", 2);
