@@ -29,11 +29,8 @@ namespace SkilledCarryWeight
             public ConfigEntry<bool> enabledConfig;
             public ConfigEntry<float> coeffConfig;
             public ConfigEntry<float> powConfig;
-
-            public bool IsEnabled => enabledConfig != null && enabledConfig.Value;
-
+            public bool IsEnabled => enabledConfig.Value;
             public float Coeff => coeffConfig.Value;
-
             public float Pow => powConfig.Value;
         }
 
