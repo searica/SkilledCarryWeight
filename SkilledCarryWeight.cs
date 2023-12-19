@@ -235,6 +235,7 @@ namespace SkilledCarryWeight {
             closestVagon = null;
             float minDistance = float.PositiveInfinity;
             Vector3 position = Player.m_localPlayer.transform.position + Vector3.up;
+
             foreach (Collider collider in Physics.OverlapSphere(position, AttachDistance.Value)) {
                 if (TryGetVagon(collider, out Vagon vagon) &&
                     collider.attachedRigidbody &&
@@ -242,12 +243,13 @@ namespace SkilledCarryWeight {
                 ) {
                     float distance = Vector3.Distance(collider.ClosestPoint(position), position);
                     if (distance < minDistance) {
-                        Log.LogInfo("Got nearby cart", LogLevel.Medium);
+                        Log.LogInfo($"Found cart {distance} away", LogLevel.Medium);
                         minDistance = distance;
                         closestVagon = vagon;
                     }
                 }
             }
+
             return minDistance < AttachDistance.Value;
         }
 
