@@ -11,21 +11,18 @@ using System.Collections.Generic;
 using SkilledCarryWeight.Extensions;
 using System;
 
-namespace SkilledCarryWeight
-{
+namespace SkilledCarryWeight {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid, Jotunn.Main.Version)]
-    internal sealed class SkilledCarryWeight : BaseUnityPlugin
-    {
+    internal sealed class SkilledCarryWeight : BaseUnityPlugin {
         internal const string Author = "Searica";
         public const string PluginName = "SkilledCarryWeight";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "1.2.0";
+        public const string PluginVersion = "1.2.1";
 
         internal static readonly Dictionary<Skills.SkillType, SkillConfig> SkillConfigsMap = new();
 
-        internal class SkillConfig
-        {
+        internal class SkillConfig {
             public ConfigEntry<bool> enabledConfig;
             public ConfigEntry<float> coeffConfig;
             public ConfigEntry<float> powConfig;
@@ -48,8 +45,7 @@ namespace SkilledCarryWeight
         private static readonly string QuickCartSection = ConfigManager.SetStringPriority("Quick Cart", 1);
         private static bool SettingsUpdated = false;
 
-        public void Awake()
-        {
+        public void Awake() {
             Log.Init(Logger);
 
             ConfigManager.Init(PluginGUID, Config, false);
@@ -62,31 +58,26 @@ namespace SkilledCarryWeight
 
             ConfigManager.SetupWatcher();
             ConfigManager.CheckForConfigManager();
-            ConfigManager.OnConfigWindowClosed += delegate
-            {
-                if (SettingsUpdated)
-                {
+            ConfigManager.OnConfigWindowClosed += delegate {
+                if (SettingsUpdated) {
                     ConfigManager.Save();
                     SettingsUpdated = false;
                 }
             };
         }
 
-        public void OnDestroy()
-        {
+        public void OnDestroy() {
             ConfigManager.Save();
         }
 
-        private static void OnSettingChanged(object sender, EventArgs e)
-        {
+        private static void OnSettingChanged(object sender, EventArgs e) {
             if (!SettingsUpdated) { SettingsUpdated = true; }
         }
 
         /// <summary>
         ///     Set up configuration entries
         /// </summary>
-        internal static void Initialize()
-        {
+        internal static void Initialize() {
             Log.Verbosity = ConfigManager.BindConfig(
                 MainSection,
                 "Verbosity",
@@ -159,8 +150,7 @@ namespace SkilledCarryWeight
                 "Allow attaching the cart even when out of place."
             );
 
-            foreach (var skillType in Skills.s_allSkills)
-            {
+            foreach (var skillType in Skills.s_allSkills) {
                 if (skillType == Skills.SkillType.All) { continue; }
 
                 var skillName = skillType.ToString();
@@ -196,10 +186,8 @@ namespace SkilledCarryWeight
             }
         }
 
-        private static bool GetDefaultEnabledValue(Skills.SkillType skillType)
-        {
-            switch (skillType)
-            {
+        private static bool GetDefaultEnabledValue(Skills.SkillType skillType) {
+            switch (skillType) {
                 case Skills.SkillType.Run:
                     return true;
 
@@ -229,42 +217,44 @@ namespace SkilledCarryWeight
         /// <summary>
         ///     Check for quick cart attach/detatch
         /// </summary>
-        private void Update()
-        {
-            if (Input.GetKeyDown(QuickCartKey.Value) && TryGetClosestVagon(out Vagon closestVagon) && closestVagon)
-            {
+        private void Update() {
+            if (Input.GetKeyDown(QuickCartKey.Value) &&
+                PlayerCanAttach() &&
+                TryGetClosestVagon(out Vagon closestVagon) &&
+                closestVagon
+            ) {
                 closestVagon.Interact(Player.m_localPlayer, false, false);
             }
         }
 
-        private static bool TryGetClosestVagon(out Vagon closestVagon)
-        {
+        private static bool PlayerCanAttach() {
+            return Player.m_localPlayer && !Player.m_localPlayer.IsDead() && !Player.m_localPlayer.InPlaceMode();
+        }
+
+        private static bool TryGetClosestVagon(out Vagon closestVagon) {
             closestVagon = null;
             float minDistance = float.PositiveInfinity;
             Vector3 position = Player.m_localPlayer.transform.position + Vector3.up;
-            foreach (Collider collider in Physics.OverlapSphere(position, AttachDistance.Value))
-            {
-                if (TryGetVagon(collider, out Vagon vagon) && collider.attachedRigidbody &&
-                    (vagon.IsAttached(Player.m_localPlayer) || !vagon.InUse()))
-                {
+            foreach (Collider collider in Physics.OverlapSphere(position, AttachDistance.Value)) {
+                if (TryGetVagon(collider, out Vagon vagon) &&
+                    collider.attachedRigidbody &&
+                    (vagon.IsAttached(Player.m_localPlayer) || !vagon.InUse())
+                ) {
                     float distance = Vector3.Distance(collider.ClosestPoint(position), position);
-                    if (distance < minDistance)
-                    {
+                    if (distance < minDistance) {
                         Log.LogInfo("Got nearby cart", LogLevel.Medium);
                         minDistance = distance;
-                        closestVagon = collider.transform.parent.gameObject.GetComponent<Vagon>();
+                        closestVagon = vagon;
                     }
                 }
             }
             return minDistance < AttachDistance.Value;
         }
 
-        private static bool TryGetVagon(Collider collider, out Vagon vagon)
-        {
+        private static bool TryGetVagon(Collider collider, out Vagon vagon) {
             vagon = collider.gameObject.GetComponent<Vagon>();
-            if (!vagon && collider.transform.parent)
-            {
-                vagon = collider.transform.parent.gameObject.GetComponent<Vagon>();
+            if (!vagon && collider.transform.parent) {
+                vagon = collider.transform.parent.GetComponent<Vagon>();
             }
             return vagon;
         }
@@ -274,8 +264,7 @@ namespace SkilledCarryWeight
     /// <summary>
     ///     Log level to control output to BepInEx log
     /// </summary>
-    internal enum LogLevel
-    {
+    internal enum LogLevel {
         Low = 0,
         Medium = 1,
         High = 2,
@@ -284,8 +273,7 @@ namespace SkilledCarryWeight
     /// <summary>
     ///     Helper class for properly logging from static contexts.
     /// </summary>
-    internal static class Log
-    {
+    internal static class Log {
         #region Verbosity
 
         internal static ConfigEntry<LogLevel> Verbosity { get; set; }
@@ -295,8 +283,7 @@ namespace SkilledCarryWeight
 
         internal static ManualLogSource _logSource;
 
-        internal static void Init(ManualLogSource logSource)
-        {
+        internal static void Init(ManualLogSource logSource) {
             _logSource = logSource;
         }
 
@@ -306,10 +293,8 @@ namespace SkilledCarryWeight
 
         internal static void LogFatal(object data) => _logSource.LogFatal(data);
 
-        internal static void LogInfo(object data, LogLevel level = LogLevel.Low)
-        {
-            if (Verbosity is null || VerbosityLevel >= level)
-            {
+        internal static void LogInfo(object data, LogLevel level = LogLevel.Low) {
+            if (Verbosity is null || VerbosityLevel >= level) {
                 _logSource.LogInfo(data);
             }
         }
@@ -320,40 +305,33 @@ namespace SkilledCarryWeight
 
         #region Logging Unity Objects
 
-        internal static void LogGameObject(GameObject prefab, bool includeChildren = false)
-        {
+        internal static void LogGameObject(GameObject prefab, bool includeChildren = false) {
             LogInfo("***** " + prefab.name + " *****");
-            foreach (Component compo in prefab.GetComponents<Component>())
-            {
+            foreach (Component compo in prefab.GetComponents<Component>()) {
                 LogComponent(compo);
             }
 
             if (!includeChildren) { return; }
 
             LogInfo("***** " + prefab.name + " (children) *****");
-            foreach (Transform child in prefab.transform)
-            {
+            foreach (Transform child in prefab.transform) {
                 LogInfo($" - {child.gameObject.name}");
-                foreach (Component compo in child.gameObject.GetComponents<Component>())
-                {
+                foreach (Component compo in child.gameObject.GetComponents<Component>()) {
                     LogComponent(compo);
                 }
             }
         }
 
-        internal static void LogComponent(Component compo)
-        {
+        internal static void LogComponent(Component compo) {
             LogInfo($"--- {compo.GetType().Name}: {compo.name} ---");
 
             PropertyInfo[] properties = compo.GetType().GetProperties(ReflectionUtils.AllBindings);
-            foreach (var property in properties)
-            {
+            foreach (var property in properties) {
                 LogInfo($" - {property.Name} = {property.GetValue(compo)}");
             }
 
             FieldInfo[] fields = compo.GetType().GetFields(ReflectionUtils.AllBindings);
-            foreach (var field in fields)
-            {
+            foreach (var field in fields) {
                 LogInfo($" - {field.Name} = {field.GetValue(compo)}");
             }
         }
