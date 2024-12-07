@@ -1,10 +1,10 @@
 ﻿{
   "name": "SkilledCarryWeight",
   "description": "Configurable increase to max carry weight based on skill level per skill. Also adds a quick attach/detach feature to carts and can allow increasing your max carry weight to make carts easier to pull.",
-  "version_number": "1.4.0",
+  "version_number": "1.4.1",
   "website_url": "https://discord.gg/sFmGTBYN6n",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2202",
-    "ValheimModding-Jotunn-2.21.3"
+    "ValheimModding-Jotunn-2.22.0"
   ]
 }

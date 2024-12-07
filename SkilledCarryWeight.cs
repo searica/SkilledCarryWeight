@@ -22,7 +22,7 @@ namespace SkilledCarryWeight {
         internal const string Author = "Searica";
         public const string PluginName = "SkilledCarryWeight";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "1.4.0";
+        public const string PluginVersion = "1.4.1";
 
         internal static readonly Dictionary<Skills.SkillType, SkillConfig> SkillConfigsMap = new();
 
@@ -97,7 +97,8 @@ namespace SkilledCarryWeight {
                 CartSection,
                 "CarryWeightAffectsCart",
                 true,
-                "Set to true/enabled to allow your max carry weight affect how easy carts are to pull by reducing the mass of carts you pull."
+                "Set to true/enabled to allow your max carry weight affect how easy carts are to pull by reducing the mass of carts you pull.",
+                synced: true
             );
             EnableCartPatch.SettingChanged += OnSettingChanged;
 
@@ -107,7 +108,8 @@ namespace SkilledCarryWeight {
                 1f,
                 "Affects how much your maximum carry weight making pulling carts easier. " +
                 "Higher powers make your maximum carry weight reduce the mass of carts more.",
-                new AcceptableValueRange<float>(0, 3)
+                new AcceptableValueRange<float>(0, 3),
+                synced: true
             );
             CartPower.SettingChanged += OnSettingChanged;
 
@@ -117,7 +119,8 @@ namespace SkilledCarryWeight {
                 0.7f,
                 "Maximum reduction in cart mass due to increased max carry weight. Limits effective " +
                 "cart mass to always be equal to or greater than Mass * (1 - MaxMassReduction)",
-                new AcceptableValueRange<float>(0, 1)
+                new AcceptableValueRange<float>(0, 1),
+                synced: true
             );
             MaxMassReduction.SettingChanged += OnSettingChanged;
 
@@ -126,7 +129,8 @@ namespace SkilledCarryWeight {
                 "MinCarryWeight",
                 300f,
                 "Minimum value your maximum carry weight must be before it starts making carts easier to pull.",
-                new AcceptableValueRange<float>(300, 1000)
+                new AcceptableValueRange<float>(300, 1000),
+                synced: true
             );
             MinCarryWeight.SettingChanged += OnSettingChanged;
 
@@ -144,14 +148,16 @@ namespace SkilledCarryWeight {
                 "AttachDistance",
                 5f,
                 "Maximum distance to attach a cart from.",
-                new AcceptableValueRange<float>(2f, 8f)
+                new AcceptableValueRange<float>(2f, 8f),
+                synced: true
             );
 
             AttachOutOfPlace = ConfigManager.BindConfig(
                 QuickCartSection,
                 "AttachOutOfPlace",
                 true,
-                "Allow attaching the cart even when out of place."
+                "Allow attaching the cart even when out of place.",
+                synced: true
             );
 
             foreach (var skillType in Skills.s_allSkills) {
@@ -164,7 +170,8 @@ namespace SkilledCarryWeight {
                     skillName,
                     ConfigManager.SetStringPriority("Enabled", 1),
                     GetDefaultEnabledValue(skillType),
-                    "Set to true/enabled to allow this skill to increase your max carry weight."
+                    "Set to true/enabled to allow this skill to increase your max carry weight.",
+                    synced: true
                 );
                 skillConfig.enabledConfig.SettingChanged += OnSettingChanged;
 
@@ -173,7 +180,8 @@ namespace SkilledCarryWeight {
                     "Coefficient",
                     0.25f,
                     "Value to multiply the skill level by to determine how much extra carry weight it grants.",
-                    new AcceptableValueRange<float>(0, 10)
+                    new AcceptableValueRange<float>(0, 10),
+                    synced: true
                 );
                 skillConfig.coeffConfig.SettingChanged += OnSettingChanged;
 
@@ -182,7 +190,8 @@ namespace SkilledCarryWeight {
                     "Power",
                     1f,
                     "Power the skill level is raised to before multiplying by Coefficient to determine extra carry weight.",
-                    new AcceptableValueRange<float>(0, 10)
+                    new AcceptableValueRange<float>(0, 10),
+                    synced: true
                 );
                 skillConfig.powConfig.SettingChanged += OnSettingChanged;
 
