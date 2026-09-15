@@ -22,7 +22,7 @@ namespace SkilledCarryWeight {
         internal const string Author = "Searica";
         public const string PluginName = "SkilledCarryWeight";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "1.4.1";
+        public const string PluginVersion = "1.5.0";
 
         internal static readonly Dictionary<Skills.SkillType, SkillConfig> SkillConfigsMap = new();
 
@@ -138,7 +138,7 @@ namespace SkilledCarryWeight {
             QuickCartKey = ConfigManager.BindConfig(
                 QuickCartSection,
                 "QuickCartKey",
-                KeyCode.G,
+                KeyCode.H,
                 "The hotkey used to attach to or detach from a nearby cart.",
                 synced: false
             );
@@ -220,6 +220,12 @@ namespace SkilledCarryWeight {
                     return true;
 
                 case Skills.SkillType.Sneak:
+                    return true;
+
+                case Skills.SkillType.Dodge:
+                    return true;
+
+                case Skills.SkillType.Farming:
                     return true;
 
                 default:

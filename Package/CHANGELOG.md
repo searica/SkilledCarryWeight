@@ -5,6 +5,16 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">1.5.0</td>
+			<td align="left">
+				<ul>
+					<li>Updated for Deep North release!</li>
+					<li>Enabled Farming and Dodge skills, so they contribute to your carry weight by default.</li>
+					<li>Changed default keybind for attaching to a cart to avoid conflicting with new hotbar.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">1.4.1</td>
 			<td align="left">
 				<ul>
