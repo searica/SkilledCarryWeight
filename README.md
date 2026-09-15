@@ -1,5 +1,5 @@
 # SkilledCarryWeight
-Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Also adds a quick attach/detach feature for carts and can configure increasing your max carry weight to make carts to be easier to pull. Uses Jotunn to sync configuration if installed on server.
+Increases max carry weight based on skill level. The skills that increase max carry weight and the amount they increase it by are completely configurable. Also adds a quick attach/detach feature for carts and can configure increasing your max carry weight to make carts to be easier to pull. Uses embedded ServerSync to sync configuration if installed on server.
 
 **Server-Side Info**: This mod does work as a client-side only mod and only needs to be installed on the server if you wish to enforce configuration settings.
 

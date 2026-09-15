@@ -1,76 +1,68 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<NuGetPackages>$(UserProfile)\.nuget\packages</NuGetPackages>
-		<JotunnProps>$(NuGetPackages)\jotunnlib\2.30.0\build\JotunnLib.props</JotunnProps>
-	</PropertyGroup>
+  <Import Project="environment.props" Condition="Exists('environment.props')" />
 
-	<Import Project="environment.props" Condition="Exists('environment.props')" />
-	<Import Project="$(JotunnProps)" Condition="Exists('$(JotunnProps)')" />
-	<Import Project="ModPackageTool.targets" Condition="Exists('ModPackageTool.targets')" />
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>10.0</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<TargetFramework>net48</TargetFramework>
-		<OutputType>Library</OutputType>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<!--<LangVersion>latest</LangVersion>-->
-		<!--<LangVersion>preview</LangVersion>-->
-		<LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<DebugSymbols>true</DebugSymbols>
-		<DebugType>full</DebugType>
-		<Optimize>false</Optimize>
-		<OutputPath>bin\Debug\</OutputPath>
-		<DefineConstants>$(DefineConstants);DefineConstants;TRACE;DEBUG</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		<Prefer32Bit>false</Prefer32Bit>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<DebugType>pdbonly</DebugType>
-		<Optimize>true</Optimize>
-		<OutputPath>bin\Release\</OutputPath>
-		<DefineConstants>
-		</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		<Prefer32Bit>false</Prefer32Bit>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-		<StartAction>Program</StartAction>
-		<StartProgram>$(VALHEIM_INSTALL)\valheim.exe</StartProgram>
-		<StartArguments>-console</StartArguments>
-		<StartWorkingDirectory>$(VALHEIM_INSTALL)</StartWorkingDirectory>
-	</PropertyGroup>
-	<ItemGroup>
-		<Compile Remove="Package\plugins\**" />
-		<EmbeddedResource Remove="Package\plugins\**" />
-		<None Remove="Package\plugins\**" />
-	</ItemGroup>
-	<ItemGroup>
-		<Content Include="Package\icon.png" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="JotunnLib" Version="2.30.0" />
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Publish\Nexus\" />
-		<Folder Include="Publish\ThunderStore\" />
-	</ItemGroup>
-	<PropertyGroup>
-		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-	</PropertyGroup>
-	<Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-		<PropertyGroup>
-			<ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-		</PropertyGroup>
-		<Error Condition="!Exists('$(JotunnProps)')" Text="$([System.String]::Format('$(ErrorText)', '$(JotunnProps)'))" />
-	</Target>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx">
+      <HintPath>$(BEPINEX_PATH)/core/BepInEx.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BEPINEX_PATH)/core/0Harmony.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="assembly_valheim">
+      <HintPath>$(VALHEIM_MANAGED)/publicized_assemblies/assembly_valheim_publicized.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="assembly_utils">
+      <HintPath>$(VALHEIM_MANAGED)/publicized_assemblies/assembly_utils_publicized.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(VALHEIM_MANAGED)/UnityEngine.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(VALHEIM_MANAGED)/UnityEngine.CoreModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(VALHEIM_MANAGED)/UnityEngine.PhysicsModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(VALHEIM_MANAGED)/UnityEngine.InputLegacyModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(VALHEIM_MANAGED)/UnityEngine.UI.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(VALHEIM_MANAGED)/Unity.TextMeshPro.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Package\plugins\**" />
+    <EmbeddedResource Remove="Package\plugins\**" />
+    <None Remove="Package\plugins\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Package\icon.png" />
+  </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-﻿// Ignore Spelling: SkilledCarryWeight Jotunn
+﻿// Ignore Spelling: SkilledCarryWeight
 
 using BepInEx;
 using BepInEx.Logging;
@@ -10,19 +10,18 @@ using UnityEngine;
 using System.Collections.Generic;
 using SkilledCarryWeight.Extensions;
 using System;
-using Jotunn.Utils;
+using ServerSync;
 
 
 namespace SkilledCarryWeight {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid, Jotunn.Main.Version)]
-    [NetworkCompatibility(CompatibilityLevel.VersionCheckOnly, VersionStrictness.Patch)]
-    [SynchronizationMode(AdminOnlyStrictness.IfOnServer)]
     internal sealed class SkilledCarryWeight : BaseUnityPlugin {
         internal const string Author = "Searica";
         public const string PluginName = "SkilledCarryWeight";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "1.4.2";
+        public const string PluginVersion = "1.4.3";
+
+        private static readonly ConfigSync configSync = new(PluginGUID) { DisplayName = PluginName, CurrentVersion = PluginVersion, MinimumRequiredVersion = PluginVersion };
 
         internal static readonly Dictionary<Skills.SkillType, SkillConfig> SkillConfigsMap = new();
 
@@ -89,7 +88,8 @@ namespace SkilledCarryWeight {
                 "Low will log basic information about the mod. Medium will log information that " +
                 "is useful for troubleshooting. High will log a lot of information, do not set " +
                 "it to this without good reason as it will slow down your game.",
-                synced: false
+                synced: false,
+                configSync: configSync
             );
             Log.Verbosity.SettingChanged += OnSettingChanged;
 
@@ -98,7 +98,8 @@ namespace SkilledCarryWeight {
                 "CarryWeightAffectsCart",
                 true,
                 "Set to true/enabled to allow your max carry weight affect how easy carts are to pull by reducing the mass of carts you pull.",
-                synced: true
+                synced: true,
+                configSync: configSync
             );
             EnableCartPatch.SettingChanged += OnSettingChanged;
 
@@ -109,7 +110,8 @@ namespace SkilledCarryWeight {
                 "Affects how much your maximum carry weight making pulling carts easier. " +
                 "Higher powers make your maximum carry weight reduce the mass of carts more.",
                 new AcceptableValueRange<float>(0, 3),
-                synced: true
+                synced: true,
+                configSync: configSync
             );
             CartPower.SettingChanged += OnSettingChanged;
 
@@ -120,7 +122,8 @@ namespace SkilledCarryWeight {
                 "Maximum reduction in cart mass due to increased max carry weight. Limits effective " +
                 "cart mass to always be equal to or greater than Mass * (1 - MaxMassReduction)",
                 new AcceptableValueRange<float>(0, 1),
-                synced: true
+                synced: true,
+                configSync: configSync
             );
             MaxMassReduction.SettingChanged += OnSettingChanged;
 
@@ -130,7 +133,8 @@ namespace SkilledCarryWeight {
                 300f,
                 "Minimum value your maximum carry weight must be before it starts making carts easier to pull.",
                 new AcceptableValueRange<float>(300, 1000),
-                synced: true
+                synced: true,
+                configSync: configSync
             );
             MinCarryWeight.SettingChanged += OnSettingChanged;
 
@@ -140,7 +144,8 @@ namespace SkilledCarryWeight {
                 "QuickCartKey",
                 KeyCode.G,
                 "The hotkey used to attach to or detach from a nearby cart.",
-                synced: false
+                synced: false,
+                configSync: configSync
             );
 
             AttachDistance = ConfigManager.BindConfig(
@@ -149,7 +154,8 @@ namespace SkilledCarryWeight {
                 5f,
                 "Maximum distance to attach a cart from.",
                 new AcceptableValueRange<float>(2f, 8f),
-                synced: true
+                synced: true,
+                configSync: configSync
             );
 
             AttachOutOfPlace = ConfigManager.BindConfig(
@@ -157,7 +163,8 @@ namespace SkilledCarryWeight {
                 "AttachOutOfPlace",
                 true,
                 "Allow attaching the cart even when out of place.",
-                synced: true
+                synced: true,
+                configSync: configSync
             );
 
             foreach (var skillType in Skills.s_allSkills) {
@@ -171,7 +178,8 @@ namespace SkilledCarryWeight {
                     ConfigManager.SetStringPriority("Enabled", 1),
                     GetDefaultEnabledValue(skillType),
                     "Set to true/enabled to allow this skill to increase your max carry weight.",
-                    synced: true
+                    synced: true,
+                    configSync: configSync
                 );
                 skillConfig.enabledConfig.SettingChanged += OnSettingChanged;
 
@@ -181,7 +189,8 @@ namespace SkilledCarryWeight {
                     0.25f,
                     "Value to multiply the skill level by to determine how much extra carry weight it grants.",
                     new AcceptableValueRange<float>(0, 10),
-                    synced: true
+                    synced: true,
+                    configSync: configSync
                 );
                 skillConfig.coeffConfig.SettingChanged += OnSettingChanged;
 
@@ -191,7 +200,8 @@ namespace SkilledCarryWeight {
                     1f,
                     "Power the skill level is raised to before multiplying by Coefficient to determine extra carry weight.",
                     new AcceptableValueRange<float>(0, 10),
-                    synced: true
+                    synced: true,
+                    configSync: configSync
                 );
                 skillConfig.powConfig.SettingChanged += OnSettingChanged;
 
@@ -234,7 +244,7 @@ namespace SkilledCarryWeight {
             if (Input.GetKeyDown(QuickCartKey.Value) &&
                 PlayerCanAttach() &&
                 TryGetClosestVagon(out Vagon closestVagon) &&
-                closestVagon
+                closestVagon != null
             ) {
                 closestVagon.Interact(Player.m_localPlayer, false, false);
             }

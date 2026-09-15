@@ -47,7 +47,7 @@ namespace SkilledCarryWeight.Patches {
         [HarmonyPatch(nameof(Vagon.GetHoverText))]
         private static void GetHoverTextPostfix(Vagon __instance, ref string __result) {
             KeyCode cartKey = SkilledCarryWeight.QuickCartKey.Value;
-            __result = Localization.instance.Localize($"{__instance.m_name}\n[<color=yellow>{cartKey}</color>] Quick Attach/Detach");
+            __result = $"{__instance.m_name}\n[<color=yellow>{cartKey}</color>] Quick Attach/Detach";
         }
     }
 }

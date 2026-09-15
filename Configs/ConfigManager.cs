@@ -1,4 +1,4 @@
-﻿// Ignore Spelling: Jotunn
+﻿// Ignore Spelling: SkilledCarryWeight
 
 using BepInEx;
 using BepInEx.Bootstrap;
@@ -10,6 +10,7 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Rendering;
+using ServerSync;
 
 namespace SkilledCarryWeight.Configs
 {
@@ -61,7 +62,8 @@ namespace SkilledCarryWeight.Configs
             T value,
             string description,
             AcceptableValueBase acceptVals = null,
-            bool synced = true
+            bool synced = true,
+            ConfigSync configSync = null
         )
         {
             string extendedDescription = GetExtendedDescription(description, synced);
@@ -75,6 +77,10 @@ namespace SkilledCarryWeight.Configs
                     synced ? AdminConfig : ClientConfig
                 )
             );
+            if (synced && configSync != null)
+            {
+                configSync.AddConfigEntry(configEntry).SynchronizedConfig = true;
+            }
             return configEntry;
         }
 

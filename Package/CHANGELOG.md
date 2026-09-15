@@ -5,6 +5,16 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">1.4.3</td>
+			<td align="left">
+				<ul>
+					<li>Removed Jotunn dependency. Config sync now uses embedded ServerSync (BepInEx only).</li>
+					<li>Removed Localization.instance call from cart hover text.</li>
+					<li>Added version check via embedded VersionCheck.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">1.4.1</td>
 			<td align="left">
 				<ul>
