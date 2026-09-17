@@ -97,7 +97,7 @@ namespace SkilledCarryWeight {
             BaseCarryWeight = ConfigManager.BindConfig(
                 MainSection,
                 "BaseCarryWeight",
-                250f,
+                300f,
                 "Base maximum carry weight for the player.",
                 new AcceptableValueRange<float>(1f, 1000f),
                 synced: true
