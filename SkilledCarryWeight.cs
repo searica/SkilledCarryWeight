@@ -22,7 +22,7 @@ namespace SkilledCarryWeight {
         internal const string Author = "Searica";
         public const string PluginName = "SkilledCarryWeight";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "1.5.0";
+        public const string PluginVersion = "1.5.1";
 
         internal static readonly Dictionary<Skills.SkillType, SkillConfig> SkillConfigsMap = new();
 
@@ -39,6 +39,7 @@ namespace SkilledCarryWeight {
         internal static ConfigEntry<float> CartPower;
         internal static ConfigEntry<float> MaxMassReduction;
         internal static ConfigEntry<float> MinCarryWeight;
+        internal static ConfigEntry<float> BaseCarryWeight;
         internal static ConfigEntry<KeyCode> QuickCartKey;
         internal static ConfigEntry<float> AttachDistance;
         internal static ConfigEntry<bool> AttachOutOfPlace;
@@ -92,6 +93,17 @@ namespace SkilledCarryWeight {
                 synced: false
             );
             Log.Verbosity.SettingChanged += OnSettingChanged;
+
+            BaseCarryWeight = ConfigManager.BindConfig(
+                MainSection,
+                "BaseCarryWeight",
+                250f,
+                "Base maximum carry weight for the player.",
+                new AcceptableValueRange<float>(1f, 1000f),
+                synced: true
+            );
+
+            BaseCarryWeight.SettingChanged += OnSettingChanged;
 
             EnableCartPatch = ConfigManager.BindConfig(
                 CartSection,
