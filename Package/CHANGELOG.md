@@ -5,6 +5,17 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">1.6.0</td>
+			<td align="left">
+				<ul>
+					<li>Added configurable minimum carry weight value (thanks ColinLcn12).</li>
+					<li>Prevent showing skills that the player has not unlocked yet (thanks ColinLcn12).</li>
+					<li>Removed the quick cart feature from this mod and made it a standalone mod [QuickCart](https://thunderstore.io/c/valheim/p/Searica/QuickCart/).</li>
+					<li>Cleaned up and optimized code.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">1.5.0</td>
 			<td align="left">
 				<ul>

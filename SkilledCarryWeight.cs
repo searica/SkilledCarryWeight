@@ -1,19 +1,19 @@
 ﻿// Ignore Spelling: SkilledCarryWeight Jotunn
 
 using BepInEx;
-using BepInEx.Logging;
-using HarmonyLib;
-using System.Reflection;
-using SkilledCarryWeight.Configs;
 using BepInEx.Configuration;
-using UnityEngine;
-using System.Collections.Generic;
-using SkilledCarryWeight.Extensions;
-using System;
+using HarmonyLib;
+using Jotunn.Extensions;
+using Jotunn.Managers;
 using Jotunn.Utils;
+using Logging;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 
 namespace SkilledCarryWeight {
+
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid, Jotunn.Main.Version)]
     [NetworkCompatibility(CompatibilityLevel.VersionCheckOnly, VersionStrictness.Patch)]
@@ -22,7 +22,10 @@ namespace SkilledCarryWeight {
         internal const string Author = "Searica";
         public const string PluginName = "SkilledCarryWeight";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "1.5.1";
+        public const string PluginVersion = "1.6.0";
+
+        internal static SkilledCarryWeight Instance;
+        internal static ConfigFileWatcher ConfigWatcher;
 
         internal static readonly Dictionary<Skills.SkillType, SkillConfig> SkillConfigsMap = new();
 
@@ -40,39 +43,60 @@ namespace SkilledCarryWeight {
         internal static ConfigEntry<float> MaxMassReduction;
         internal static ConfigEntry<float> MinCarryWeight;
         internal static ConfigEntry<float> BaseCarryWeight;
-        internal static ConfigEntry<KeyCode> QuickCartKey;
-        internal static ConfigEntry<float> AttachDistance;
-        internal static ConfigEntry<bool> AttachOutOfPlace;
 
 
-        private static readonly string MainSection = ConfigManager.SetStringPriority("Global", 3);
-        private static readonly string CartSection = ConfigManager.SetStringPriority("Cart Mass", 2);
-        private static readonly string QuickCartSection = ConfigManager.SetStringPriority("Quick Cart", 1);
+        private const string MainSection = "Global";
+        private const  string CartSection = "Cart Mass";
+
         private static bool SettingsUpdated = false;
 
         public void Awake() {
+            Instance = this;
             Log.Init(Logger);
 
-            ConfigManager.Init(PluginGUID, Config, false);
+            Config.SaveOnConfigSet = false;
             Initialize();
-            ConfigManager.Save();
+            Config.Save();
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), harmonyInstanceId: PluginGUID);
 
             Game.isModded = true;
 
-            ConfigManager.SetupWatcher();
-            ConfigManager.CheckForConfigManager();
-            ConfigManager.OnConfigWindowClosed += delegate {
-                if (SettingsUpdated) {
-                    ConfigManager.Save();
+            ConfigWatcher = new ConfigFileWatcher(Config);
+
+            // Update tools if config file reloaded
+            ConfigWatcher.OnConfigFileReloaded += () =>
+            {
+                if (SettingsUpdated)
+                {
+                    Config.Save();
+                    SettingsUpdated = false;
+                }
+            };
+
+            // Update tools if in-game config manager window is closed
+            SynchronizationManager.OnConfigurationWindowClosed += () =>
+            {
+                if (SettingsUpdated)
+                {
+                    Config.Save();
+                    SettingsUpdated = false;
+                }
+            };
+
+            // Update tools if in-game config manager window is closed
+            SynchronizationManager.OnConfigurationSynchronized += (obj, args) =>
+            {
+                if (SettingsUpdated)
+                {
+                    Config.Save();
                     SettingsUpdated = false;
                 }
             };
         }
 
         public void OnDestroy() {
-            ConfigManager.Save();
+            Config.Save();
         }
 
         private static void OnSettingChanged(object sender, EventArgs e) {
@@ -83,10 +107,10 @@ namespace SkilledCarryWeight {
         ///     Set up configuration entries
         /// </summary>
         internal static void Initialize() {
-            Log.Verbosity = ConfigManager.BindConfig(
+            Log.Verbosity = Instance.Config.BindConfigInOrder(
                 MainSection,
                 "Verbosity",
-                LogLevel.Low,
+                Log.InfoLevel.Low,
                 "Low will log basic information about the mod. Medium will log information that " +
                 "is useful for troubleshooting. High will log a lot of information, do not set " +
                 "it to this without good reason as it will slow down your game.",
@@ -94,18 +118,18 @@ namespace SkilledCarryWeight {
             );
             Log.Verbosity.SettingChanged += OnSettingChanged;
 
-            BaseCarryWeight = ConfigManager.BindConfig(
+            BaseCarryWeight = Instance.Config.BindConfigInOrder(
                 MainSection,
                 "BaseCarryWeight",
                 300f,
-                "Base maximum carry weight for the player.",
-                new AcceptableValueRange<float>(1f, 1000f),
+                "Base maximum carry weight for the player. Vanilla value is 300.",
+                acceptableValues: new AcceptableValueRange<float>(1f, 1000f),
                 synced: true
             );
 
             BaseCarryWeight.SettingChanged += OnSettingChanged;
 
-            EnableCartPatch = ConfigManager.BindConfig(
+            EnableCartPatch = Instance.Config.BindConfigInOrder(
                 CartSection,
                 "CarryWeightAffectsCart",
                 true,
@@ -114,63 +138,38 @@ namespace SkilledCarryWeight {
             );
             EnableCartPatch.SettingChanged += OnSettingChanged;
 
-            CartPower = ConfigManager.BindConfig(
+            CartPower = Instance.Config.BindConfigInOrder(
                 CartSection,
                 "Power",
                 1f,
                 "Affects how much your maximum carry weight making pulling carts easier. " +
                 "Higher powers make your maximum carry weight reduce the mass of carts more.",
-                new AcceptableValueRange<float>(0, 3),
+                acceptableValues: new AcceptableValueRange<float>(0, 3),
                 synced: true
             );
             CartPower.SettingChanged += OnSettingChanged;
 
-            MaxMassReduction = ConfigManager.BindConfig(
+            MaxMassReduction = Instance.Config.BindConfigInOrder(
                 CartSection,
                 "MaxMassReduction",
                 0.7f,
                 "Maximum reduction in cart mass due to increased max carry weight. Limits effective " +
                 "cart mass to always be equal to or greater than Mass * (1 - MaxMassReduction)",
-                new AcceptableValueRange<float>(0, 1),
+                acceptableValues: new AcceptableValueRange<float>(0, 1),
                 synced: true
             );
             MaxMassReduction.SettingChanged += OnSettingChanged;
 
-            MinCarryWeight = ConfigManager.BindConfig(
+            MinCarryWeight = Instance.Config.BindConfigInOrder(
                 CartSection,
-                "MinCarryWeight",
+                "MinCarryWeightForCartReduction",
                 300f,
                 "Minimum value your maximum carry weight must be before it starts making carts easier to pull.",
-                new AcceptableValueRange<float>(300, 1000),
+                acceptableValues: new AcceptableValueRange<float>(300, 1000),
                 synced: true
             );
             MinCarryWeight.SettingChanged += OnSettingChanged;
 
-
-            QuickCartKey = ConfigManager.BindConfig(
-                QuickCartSection,
-                "QuickCartKey",
-                KeyCode.H,
-                "The hotkey used to attach to or detach from a nearby cart.",
-                synced: false
-            );
-
-            AttachDistance = ConfigManager.BindConfig(
-                QuickCartSection,
-                "AttachDistance",
-                5f,
-                "Maximum distance to attach a cart from.",
-                new AcceptableValueRange<float>(2f, 8f),
-                synced: true
-            );
-
-            AttachOutOfPlace = ConfigManager.BindConfig(
-                QuickCartSection,
-                "AttachOutOfPlace",
-                true,
-                "Allow attaching the cart even when out of place.",
-                synced: true
-            );
 
             foreach (var skillType in Skills.s_allSkills) {
                 if (skillType == Skills.SkillType.All) { continue; }
@@ -178,31 +177,31 @@ namespace SkilledCarryWeight {
                 var skillName = skillType.ToString();
                 var skillConfig = new SkillConfig();
 
-                skillConfig.enabledConfig = ConfigManager.BindConfig(
+                skillConfig.enabledConfig = Instance.Config.BindConfigInOrder(
                     skillName,
-                    ConfigManager.SetStringPriority("Enabled", 1),
+                    "Enabled",
                     GetDefaultEnabledValue(skillType),
                     "Set to true/enabled to allow this skill to increase your max carry weight.",
                     synced: true
                 );
                 skillConfig.enabledConfig.SettingChanged += OnSettingChanged;
 
-                skillConfig.coeffConfig = ConfigManager.BindConfig(
+                skillConfig.coeffConfig = Instance.Config.BindConfigInOrder(
                     skillName,
                     "Coefficient",
                     0.25f,
                     "Value to multiply the skill level by to determine how much extra carry weight it grants.",
-                    new AcceptableValueRange<float>(0, 10),
+                    acceptableValues: new AcceptableValueRange<float>(0, 10),
                     synced: true
                 );
                 skillConfig.coeffConfig.SettingChanged += OnSettingChanged;
 
-                skillConfig.powConfig = ConfigManager.BindConfig(
+                skillConfig.powConfig = Instance.Config.BindConfigInOrder(
                     skillName,
                     "Power",
                     1f,
                     "Power the skill level is raised to before multiplying by Coefficient to determine extra carry weight.",
-                    new AcceptableValueRange<float>(0, 10),
+                    acceptableValues: new AcceptableValueRange<float>(0, 10),
                     synced: true
                 );
                 skillConfig.powConfig.SettingChanged += OnSettingChanged;
@@ -244,131 +243,5 @@ namespace SkilledCarryWeight {
                     return false;
             }
         }
-
-        /// <summary>
-        ///     Check for quick cart attach/detatch
-        /// </summary>
-        private void Update() {
-            if (Input.GetKeyDown(QuickCartKey.Value) &&
-                PlayerCanAttach() &&
-                TryGetClosestVagon(out Vagon closestVagon) &&
-                closestVagon
-            ) {
-                closestVagon.Interact(Player.m_localPlayer, false, false);
-            }
-        }
-
-        private static bool PlayerCanAttach() {
-            return Player.m_localPlayer && !Player.m_localPlayer.IsDead() && !Player.m_localPlayer.InPlaceMode();
-        }
-
-        private static bool TryGetClosestVagon(out Vagon closestVagon) {
-            closestVagon = null;
-            float minDistance = float.PositiveInfinity;
-            Vector3 position = Player.m_localPlayer.transform.position + Vector3.up;
-
-            foreach (Collider collider in Physics.OverlapSphere(position, AttachDistance.Value)) {
-                if (TryGetVagon(collider, out Vagon vagon) &&
-                    collider.attachedRigidbody &&
-                    (vagon.IsAttached(Player.m_localPlayer) || !vagon.InUse())
-                ) {
-                    float distance = Vector3.Distance(collider.ClosestPoint(position), position);
-                    if (distance < minDistance) {
-                        Log.LogInfo($"Found cart {distance} away", LogLevel.Medium);
-                        minDistance = distance;
-                        closestVagon = vagon;
-                    }
-                }
-            }
-
-            return minDistance < AttachDistance.Value;
-        }
-
-        private static bool TryGetVagon(Collider collider, out Vagon vagon) {
-            vagon = collider.gameObject.GetComponent<Vagon>();
-            if (!vagon && collider.transform.parent) {
-                vagon = collider.transform.parent.GetComponent<Vagon>();
-            }
-            return vagon;
-        }
-
-    }
-
-    /// <summary>
-    ///     Log level to control output to BepInEx log
-    /// </summary>
-    internal enum LogLevel {
-        Low = 0,
-        Medium = 1,
-        High = 2,
-    }
-
-    /// <summary>
-    ///     Helper class for properly logging from static contexts.
-    /// </summary>
-    internal static class Log {
-        #region Verbosity
-
-        internal static ConfigEntry<LogLevel> Verbosity { get; set; }
-        internal static LogLevel VerbosityLevel => Verbosity.Value;
-
-        #endregion Verbosity
-
-        internal static ManualLogSource _logSource;
-
-        internal static void Init(ManualLogSource logSource) {
-            _logSource = logSource;
-        }
-
-        internal static void LogDebug(object data) => _logSource.LogDebug(data);
-
-        internal static void LogError(object data) => _logSource.LogError(data);
-
-        internal static void LogFatal(object data) => _logSource.LogFatal(data);
-
-        internal static void LogInfo(object data, LogLevel level = LogLevel.Low) {
-            if (Verbosity is null || VerbosityLevel >= level) {
-                _logSource.LogInfo(data);
-            }
-        }
-
-        internal static void LogMessage(object data) => _logSource.LogMessage(data);
-
-        internal static void LogWarning(object data) => _logSource.LogWarning(data);
-
-        #region Logging Unity Objects
-
-        internal static void LogGameObject(GameObject prefab, bool includeChildren = false) {
-            LogInfo("***** " + prefab.name + " *****");
-            foreach (Component compo in prefab.GetComponents<Component>()) {
-                LogComponent(compo);
-            }
-
-            if (!includeChildren) { return; }
-
-            LogInfo("***** " + prefab.name + " (children) *****");
-            foreach (Transform child in prefab.transform) {
-                LogInfo($" - {child.gameObject.name}");
-                foreach (Component compo in child.gameObject.GetComponents<Component>()) {
-                    LogComponent(compo);
-                }
-            }
-        }
-
-        internal static void LogComponent(Component compo) {
-            LogInfo($"--- {compo.GetType().Name}: {compo.name} ---");
-
-            PropertyInfo[] properties = compo.GetType().GetProperties(ReflectionUtils.AllBindings);
-            foreach (var property in properties) {
-                LogInfo($" - {property.Name} = {property.GetValue(compo)}");
-            }
-
-            FieldInfo[] fields = compo.GetType().GetFields(ReflectionUtils.AllBindings);
-            foreach (var field in fields) {
-                LogInfo($" - {field.Name} = {field.GetValue(compo)}");
-            }
-        }
-
-        #endregion Logging Unity Objects
     }
 }
